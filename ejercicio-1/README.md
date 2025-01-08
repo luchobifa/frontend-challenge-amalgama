@@ -65,7 +65,7 @@ type Props {
   states: State[];
 }
 
-const ContactsScreen = ({ contacts, cities, states }: Props) => {
+export const ContactsScreen = ({ contacts, cities, states }: Props) => {
   const contactsToDisplay = mapContactsData(contacts, cities, states);
 
   return (
@@ -83,8 +83,6 @@ const ContactsScreen = ({ contacts, cities, states }: Props) => {
     </div>
   );
 };
-
-export default ContactsScreen;
 ```
 
 **ContactCard.tsx.tsx**
