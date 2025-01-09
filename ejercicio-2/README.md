@@ -117,6 +117,6 @@ export const useBooksAndUsers = () => useContext(BooksAndUsersContext);
 ## 2.3 Ventajas que tiene la solución propuesta
 
 - Acceso global: El estado se puede acceder desde cualquier componente de la aplicación sin necesidad de pasar props manualmente.
-- Reutilización de lógica: Las funciones para actualizar el estado (setBooks, setUsers) están encapsuladas en el proveedor.
+- Reutilización de lógica: Las funciones para actualizar el estado (setBooks, setUsers) están encapsuladas en el provider.
 - Escalabilidad: Si se requiere agregar más datos o funcionalidades, puedes extender el contexto fácilmente.
 - Persistencia: El estado se guarda en localStorage del browser, lo que asegura que los datos persisten incluso después de recargar la página o cerrar la aplicación.

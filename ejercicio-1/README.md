@@ -18,12 +18,9 @@
 
 3. **Responsabilidad Única:**
 
-   - En este caso, ContactsScreen no solo es responsable de la renderización de la vista, sino que también mapea y transforma los datos (contacts, cities, states). Esta lógica de transformación debería delegarse a un método o función externa, ya que no está directamente relacionada con la presentación de la interfaz.
+   - En este caso, ContactsScreen no solo es responsable de la renderización de la vista, sino que también mapea y transforma los datos (contacts, cities, states). Esta lógica de transformación debería delegarse a un método o función externa, ya que no está directamente relacionada con la presentación de la interfaz y reduce la capacidad de reutilizar la lógica de transformación en otros lugares del código
 
-   Esto provoca:
-
-   - Que el componente sea más difícil de leer y mantener, ya que mezcla lógica de transformación con la lógica de presentación.
-   - Reduce la capacidad de reutilizar la lógica de transformación en otros lugares del código.
+   - También el componente muestra lo que pareciera ser el Header o menú de navegación de la aplicacion haciendo difícil reutilizar solo la lista de contactos en otras partes de la aplicación. Esto podría resolverse creando un componente separado para el Header o Navbar y usarlo como parte de un layout general que envuelve las pantallas.
 
 4. **Falta de componentización y una estructura de componentes atómica:**
 
@@ -32,11 +29,11 @@
    Esto provoca:
 
    - Difícil mantenimiento: La estructura de renderizado dificulta localizar y corregir errores o implementar nuevas características.
-   - Poca reutilización: Cada vez que necesites renderizar contactos o direcciones en otro lugar, tendrás que duplicar el código o copiar fragmentos de lógica 🚨.
+   - Poca reutilización: Cada vez que necesites renderizar contactos o direcciones (addresses) en otro lugar, tendrás que duplicar el código o copiar fragmentos de lógica 🚨.
 
 5. **Accesibilidad:**
 
-   - Falta de atributos como `alt` en las imágenes.
+   - Falta de atributos como `alt` en las imágenes y uso correcto de la semántica HTML.
 
 ### Problemas Más Relevantes
 
@@ -65,25 +62,18 @@ type Props {
 
 export const ContactsScreen = ({ contacts, cities, states }: Props) => {
   const contactsToDisplay = mapContactsData(contacts, cities, states);
-
   return (
-    <div>
-      <nav>
-        <ul>
-          <li><a href="/home">Home</a></li>
-          <li><a href="/contacts">My Contacts</a></li>
-        </ul>
-      </nav>
+    <section>
       <h1>Contacts 👥</h1>
       {contactsToDisplay.map(contact => (
         <ContactCard key={contact.id} contact={contact} />
       ))}
-    </div>
+    </section>
   );
 };
 ```
 
-**ContactCard.tsx.tsx**
+**ContactCard.tsx**
 
 ```tsx
 import { Contact } from '../types';
@@ -93,8 +83,7 @@ type Props {
   contact: Contact;
 }
 
-export const ContactCard = ({ contact: { avatar_url, full_name, company, details, email, phone_number, addresses } }: Props) => {
-  return (
+export const ContactCard = ({ contact: { avatar_url, full_name, company, details, email, phone_number, addresses } }: Props) => (
     <div>
       <div>
         <img src={avatar_url} alt={full_name} />
@@ -114,7 +103,6 @@ export const ContactCard = ({ contact: { avatar_url, full_name, company, details
       </ul>
     </div>
   );
-};
 ```
 
 **Address.tsx**
@@ -126,8 +114,7 @@ type Props {
   address: AddressType;
 }
 
-export const Address = ({ address }: Props) => {
-  return (
+export const Address = ({ address }: Props) => (
     <ul>
       <li>{address.line_1}</li>
       <li>{address.line_2}</li>
@@ -136,7 +123,6 @@ export const Address = ({ address }: Props) => {
       <li>{address.state}</li>
     </ul>
   );
-};
 ```
 
 **mapContactsData.ts**
@@ -144,7 +130,7 @@ export const Address = ({ address }: Props) => {
 ```ts
 import { Contact, City, State } from "../types";
 
-export const transformContactsData = (
+export const mapContactsData = (
   contacts: Contact[],
   cities: City[],
   states: State[]
@@ -171,7 +157,7 @@ export const transformContactsData = (
 **types.ts**
 
 ```ts
-export interface Contact {
+export type Contact {
   avatar_url: string;
   first_name: string;
   last_name: string;
@@ -185,7 +171,7 @@ export interface Contact {
   addresses: Address[];
 }
 
-export interface Address {
+export type Address {
   line_1: string;
   line_2: string;
   zip_code: number;
@@ -193,12 +179,12 @@ export interface Address {
   state_id: string;
 }
 
-export interface City {
+export type City {
   id: string;
   name: string;
 }
 
-export interface State {
+export type State {
   id: string;
   name: string;
 }
@@ -206,7 +192,7 @@ export interface State {
 
 ---
 
-## 1.3 Justificación de las Mejoras (ya fueron explicadas en el punto 1).
+## 1.3 Justificación de las Mejoras (algunas ya fueron explicadas en el punto 1).
 
 1. **Tipado con TypeScript:**
 
@@ -219,7 +205,7 @@ export interface State {
 
 3. **Responsabilidad Única:**
 
-   - El componente ContactsScreen ahora solo se encarga de la presentación, delegando la transformación de los datos a la función mapContactsData. Esto mejora la claridad del flujo de la aplicación y facilita la reutilización del código en otras partes del proyecto.
+   - El componente ContactsScreen ahora solo se encarga del renderizado, delegando la transformación de los datos a la función mapContactsData. Esto mejora la claridad del flujo de la aplicación y facilita la reutilización del código en otras partes del proyecto.
 
 4. **Componentización y estructura atómica:**
 
@@ -228,6 +214,7 @@ export interface State {
 5. **Mejora de la accesibilidad:**
 
    - Se ha añadido el atributo alt a las imágenes.
+   - Se ha añadido el uso correcto de elementos HTML (<section>)
 
 ---
 
