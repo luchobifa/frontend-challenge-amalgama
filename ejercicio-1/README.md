@@ -1,7 +1,5 @@
 # Ejercicio 1 - Componentes
 
-Este ejercicio tiene como objetivo analizar, mejorar y extender un componente de React que muestra una lista de contactos. A continuación, se presenta una descripción de los problemas identificados, las mejoras propuestas y las soluciones implementadas.
-
 ---
 
 ### 1.1 Problemas y Posibilidades de Mejora
