@@ -166,5 +166,6 @@ export const useBooksAndUsersDispatch = () => {
 
 - Control Total sobre el Estado: El reducer le da un control total sobre cómo se modifican las propiedades del estado, lo que facilita la validación de la lógica de actualización y la manipulación de datos sin riesgos de errores no controlados.
 - Se tiene 2 providers lo que permite que cualquier componente puede actualizar la información o leerla. Esto da flexibilidad para que diferentes partes de la aplicación accedan a lo que realmente necesitan.
+- Los hooks personalizados como useBooksAndUsersState y useBooksAndUsersDispatch encapsulan la lógica para acceder al estado y al despachador, proporcionando una manera sencilla y reutilizable para cualquier componente que necesite interactuar con el estado global.
 - Evita el prop-drilling: Con React.Context, cualquier componente de la aplicación puede acceder al estado global o a las funciones de despacho (dispatch) sin necesidad de pasar propiedades a través de varios niveles de componentes. Esto simplifica la arquitectura de la aplicación..
 - Escalabilidad: Si se requiere agregar más datos o funcionalidades, puedes extender el reducer facilmente.
