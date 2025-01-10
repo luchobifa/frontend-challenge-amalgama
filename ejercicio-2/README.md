@@ -4,55 +4,103 @@
 
 ### 2.1 Pensar cómo sería la forma más óptima de guardar esta información en el browser. Codear la solución usando alguna estrategia de state management:
 
+**BooksAndUsersReducer.ts**
+
+```ts
+import { Book, User, AppState } from "./types";
+
+type Action =
+  | { type: "SET_BOOKS"; payload: Book[] }
+  | { type: "SET_USERS"; payload: User[] };
+
+const reducer = (state: AppState, action: Action): AppState => {
+  switch (action.type) {
+    case "SET_BOOKS":
+      return { ...state, books: action.payload };
+    case "SET_USERS":
+      return { ...state, users: action.payload };
+    default:
+      throw new Error(`Unhandled action type: ${action.type}`);
+  }
+};
+```
+
 **BooksAndUsersContext.tsx**
 
-```tsx
-import { createContext, useContext, useState, ReactNode } from "react";
-import { AppState, Book, User } from "../types";
+```ts
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  ReactNode,
+  useEffect,
+} from "react";
 
-const BooksAndUsersContext = createContext<{
-  state: AppState;
-  setBooks: (books: Book[]) => void;
-  setUsers: (users: User[]) => void;
-}>({
-  state: { books: [], users: [] },
-  setBooks: () => {},
-  setUsers: () => {},
-});
+import { AppState, Action } from "./types";
+import reducer from "./BooksAndUsersReducer";
+
+export const StateContext = createContext<AppState | undefined>(undefined);
+export const DispatchContext = createContext<
+  React.Dispatch<Action> | undefined
+>(undefined);
+```
+
+**BooksAndUsersProvider**
+
+```tsx
+const initialState: AppState = { books: [], users: [] };
 
 export const BooksAndUsersProvider = ({
   children,
 }: {
   children: ReactNode;
 }) => {
-  const [state, setState] = useState<AppState>(() => {
-    const savedState = localStorage.getItem("booksAndUsersState");
-    const parsedState = savedState
-      ? JSON.parse(savedState)
-      : { books: [], users: [] };
-    return parsedState;
-  });
+  const savedState = localStorage.getItem("booksAndUsersState");
+  const initialStateFromStorage = savedState
+    ? JSON.parse(savedState)
+    : initialState;
 
-  const setBooks = (books: Book[]) => {
-    const newState = { ...state, books };
-    setState(newState);
-    localStorage.setItem("booksAndUsersState", JSON.stringify(newState));
-  };
+  const [state, dispatch] = useReducer(reducer, initialStateFromStorage);
 
-  const setUsers = (users: User[]) => {
-    const newState = { ...state, users };
-    setState(newState);
-    localStorage.setItem("booksAndUsersState", JSON.stringify(newState));
-  };
+  useEffect(() => {
+    localStorage.setItem("booksAndUsersState", JSON.stringify(state));
+  }, [state]);
 
   return (
-    <BooksAndUsersContext.Provider value={{ state, setBooks, setUsers }}>
-      {children}
-    </BooksAndUsersContext.Provider>
+    <StateContext.Provider value={state}>
+      <DispatchContext.Provider value={dispatch}>
+        {children}
+      </DispatchContext.Provider>
+    </StateContext.Provider>
   );
 };
+```
 
-export const useBooksAndUsers = () => useContext(BooksAndUsersContext);
+**BooksAndUsers.hooks.tsx**
+
+```tsx
+import { useContext } from "react";
+import { StateContext, DispatchContext } from "./BooksAndUsersContext";
+
+export const useBooksAndUsersState = () => {
+  const context = useContext(StateContext);
+  if (context === undefined) {
+    throw new Error(
+      "useBooksAndUsersState must be used within a BooksAndUsersProvider"
+    );
+  }
+  return context;
+};
+
+export const useBooksAndUsersDispatch = () => {
+  const context = useContext(DispatchContext);
+  if (context === undefined) {
+    throw new Error(
+      "useBooksAndUsersDispatch must be used within a BooksAndUsersProvider"
+    );
+  }
+  return context;
+};
 ```
 
 ---
@@ -116,7 +164,7 @@ export const useBooksAndUsers = () => useContext(BooksAndUsersContext);
 
 ## 2.3 Ventajas que tiene la solución propuesta
 
-- Acceso global: El estado se puede acceder desde cualquier componente de la aplicación sin necesidad de pasar props manualmente.
-- Reutilización de lógica: Las funciones para actualizar el estado (setBooks, setUsers) están encapsuladas en el provider.
-- Escalabilidad: Si se requiere agregar más datos o funcionalidades, puedes extender el contexto fácilmente.
-- Persistencia: El estado se guarda en localStorage del browser, lo que asegura que los datos persisten incluso después de recargar la página o cerrar la aplicación.
+- Control Total sobre el Estado: El reducer le da un control total sobre cómo se modifican las propiedades del estado, lo que facilita la validación de la lógica de actualización y la manipulación de datos sin riesgos de errores no controlados.
+- Se tiene 2 providers lo que permite que cualquier componente puede actualizar la información o leerla. Esto da flexibilidad para que diferentes partes de la aplicación accedan a lo que realmente necesitan.
+- Evita el prop-drilling: Con React.Context, cualquier componente de la aplicación puede acceder al estado global o a las funciones de despacho (dispatch) sin necesidad de pasar propiedades a través de varios niveles de componentes. Esto simplifica la arquitectura de la aplicación..
+- Escalabilidad: Si se requiere agregar más datos o funcionalidades, puedes extender el reducer facilmente.
