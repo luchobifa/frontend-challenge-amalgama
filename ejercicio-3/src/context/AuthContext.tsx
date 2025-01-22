@@ -1,5 +1,4 @@
 import { createContext, useState, useContext, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
 import { AuthContextType } from "./types";
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -17,7 +16,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     () => !!localStorage.getItem("authToken")
   );
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const login = async (email: string, password: string): Promise<void> => {
     try {
@@ -41,7 +39,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
       localStorage.setItem("authToken", data.token);
       setIsAuthenticated(true);
-      navigate("/dashboard");
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Hubo un error en la solicitud";
@@ -52,7 +49,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = (): void => {
     localStorage.removeItem("authToken");
     setIsAuthenticated(false);
-    navigate("/login");
   };
 
   return (

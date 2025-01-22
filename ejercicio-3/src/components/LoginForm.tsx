@@ -1,24 +1,16 @@
-import { useState, FormEvent, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, FormEvent } from "react";
 import { useAuth } from "../context/AuthContext";
 import { TextField, Button, Container, Typography, Alert } from "@mui/material";
 
 export const LoginForm = () => {
-  const { login, error, isAuthenticated } = useAuth();
+  const { login, error } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const navigate = useNavigate();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     login(email, password);
   };
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
-    }
-  }, [isAuthenticated, navigate]);
 
   return (
     <Container maxWidth="xs">
